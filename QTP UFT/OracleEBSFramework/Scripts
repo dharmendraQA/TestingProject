@@ -1,0 +1,117 @@
+'*******************************************************************************************************************************
+'*******************************************************************************************************************************
+'	Script Name							:				SCN_13.04.02.02.ReleaseHoldsatthecustomerlevelfromHoldsOrganizer
+'	Objective							:				13.04.02.02. Release Holds at the customer level from Holds Organizer
+	'Module								:				Order to Drop Shipment
+'	UFT Version							:				12.53
+'	QC Version							:				11.53
+'	Pre-requisites						:				
+'	Created By							:				Gallop
+'	Date Created						:				28-Oct-2016
+'	Modification Date		       		:		   		NIL	 
+'*******************************************************************************************************************************
+
+If Environment("ERRORFLAG") = False Then
+	ExitAction()
+End If
+'******************************Imorting ExcelSheet******************************************************************************
+'Get sheet based on region
+If Ucase(Environment("CountryUS")) = "YES" and  Ucase(Environment("CountryCA")) = "NO" Then
+	iReleasesalesOrdRowCount = fnGetRowCount("US")
+	Set oReleasesalesOrdDataDict = fnGetTestData("US")
+ElseIf Ucase(Environment("CountryUS")) = "NO" and  Ucase(Environment("CountryCA")) = "YES" Then
+	iReleasesalesOrdRowCount = fnGetRowCount("CANADA")
+	Set oReleasesalesOrdDataDict = fnGetTestData("CANADA")
+End If 
+'******************************Login To OracleEBS*******************************************************************************
+Call fnOracleEBSLogin()
+For iReleasesalesOrdRowCountFrom=1 to iReleasesalesOrdRowCount
+	rKey = iReleasesalesOrdRowCountFrom	
+	Do while Environment("ERRORFLAG")<>False 
+       	  	''*********************************Navigate To Reponsibility*************************************************************
+	If Ucase(Environment("CountryUS")) = "YES" and  Ucase(Environment("CountryCA")) = "NO" Then	
+		fnNavigateToPage("Receivables Manager|ATDI Holds Organizer")
+	ElseIf Ucase(Environment("CountryUS")) = "NO" and  Ucase(Environment("CountryCA")) = "YES" Then
+	    fnNavigateToPage("NTD-CA Receivables Manager|ATDI Holds Organizer")
+	End If 
+	fnSynUntilObjExists "FindOrders/Quotes", 80
+	'Verify FindOrders/Quotes window 
+	If OracleFormWindow("FindOrders/Quotes").Exist(10) Then
+		Call fnReportStepALM("FindOrders/ Quotes", "Passed", "FindOrders/Quotes window verification", "FindOrders/Quotes window should be displayed","FindOrders/Quotes window is displayed")
+		Call rptWriteReport("PASSWITHSCREENSHOT", "FindOrders/Quotes window verification" , "FindOrders/Quotes window is displayed")
+	Else
+		Call fnReportStepALM("FindOrders/ Quotes", "Failed", "FindOrders/Quotes window verification", "FindOrders/Quotes window should be displayed","FindOrders/Quotes window is not displayed")
+		Call rptWriteReport("Fail", "FindOrders/Quotes window verification" , "FindOrders/Quotes window is not displayed")
+		fnUploadReport strProjectResultPath&"\"&Environment("FolderName"), strProjectResultPath&"\"&Environment("FolderName")
+		ExitRun	
+	End If
+   	If Environment("ERRORFLAG") = False Then
+		Exit Do 
+		ExitAction()
+    End If
+        ''****************************Fetching data From Excel Sheet ***********************************************************
+        sReason= oReleasesalesOrdDataDict.Item("Reason"&iReleasesalesOrdRowCountFrom) 
+        
+   		'*******************************Function Flow *************************************************************************
+  		'Click on Hold Information Tab 
+  		fnSelect "HoldsInformation","Holds Information" 
+        'Click on arrow to add a Hold to Query
+		fnClick "btnArrow" 
+		Call rptWriteReport("PASSWITHSCREENSHOT", "Holds Information" , "Holds Information entered successfully")
+		'Click on Advance Tab 
+		fnSelect "tabAdvanced", "Advanced"
+		'Uncheck the Closed options 
+		fnClick "chkIncludeClosedOrders"	
+		fnClick "chkIncludeClosedLines"
+		Call rptWriteReport("PASSWITHSCREENSHOT", "Advanced Information" , "Advanced Information entered successfully")
+		'Click on Quote/Order Information Tab
+		fnSelect "Quote/Order Information", "Quote/Order Information"
+		'Enter From Date range 
+		If Ucase(Environment("CountryUS")) = "YES" and  Ucase(Environment("CountryCA")) = "NO" Then
+			fnEnterText "txOrderDateFrom", fnGetPast5thDate()&" 00:00:00"
+			'Enter To Date range 
+			fnEnterText "txOrderDateTo", fnGetCurrentDate()&" 00:00:00"
+			If OracleFlexWindow("AdditionalHeaderInformation").Exist(10) Then
+				fnClick "btnahiOK"
+				fnSelect "Quote/Order Information", "Quote/Order Information"
+			End If
+		End If 
+		'Click on Find Button 
+		fnClick "btnFindORderQuotes"
+		If OracleNotification("Decisionss").Exist(10) Then
+			fnPopUpHandle "Decisionss", "btnDeleteYes"
+		End If
+		fnSynUntilObjExists "ATDI Holds Organizer", 80	
+		'Verify ATDI Holds Organizer window 
+		If OracleFormWindow("ATDI Holds Organizer").Exist(10) Then
+			Call fnReportStepALM("ATDI Holds Organizer", "Passed", "ATDI Holds Organizer window verification", "Orders should retrieve between the given ranges","Orders are retrieved between the given ranges")
+			Call rptWriteReport("PASSWITHSCREENSHOT", "ATDI Holds Organizer window verification" , "Orders are retrieved between the given ranges")
+		Else  
+		 	Call fnReportStepALM("ATDI Holds Organizer", "Failed", "ATDI Holds Organizer window verification", "Orders should retrieve between the given ranges","Orders are not retrieved between the given ranges")
+		 	Call rptWriteReport("Fail", "ATDI Holds Organizer window verification" , "Orders are not retrieved between the given ranges")
+		End If
+		'Select an order from the list -------------------------Comman till here -----------
+		fnClick "btnUOracleButton"
+		If OracleFormWindow("NumberOfDays").Exist() Then
+			Call fnReportStepALM("NumberOfDays", "Passed", "Number Of Days pop-up verification", "Number of Days pop-up should be displayed", "Number of Days pop-up is displayed")
+			Call rptWriteReport("PASSWITHSCREENSHOT", "Number Of Days pop-up verification" , "Number of Days pop-up is displayed")
+			fnEnterText "txtnodOracleTextField", 2
+			fnClick "btnNODYes"
+			Call rptWriteReport("PASSWITHSCREENSHOT", "Number Of Days pop-up verification" , "Number of Days entered successfully")
+		Else 
+			Call fnReportStepALM("NumberOfDays", "Failed", "Number Of Days pop-up verification", "Number of Days pop-up should be displayed", "Number of Days pop-up is not displayed")		
+			Call rptWriteReport("Fail", "Number Of Days pop-up verification" , "Number of Days pop-up is not displayed")
+		End If
+  		'Close the Window
+  		OracleFormWindow("ATDI Holds Organizer").CloseWindow 
+		If Environment("ERRORFLAG") = False Then
+			Exit Do 
+			ExitAction()
+		 End If	
+	  Exit Do	
+	Loop
+Next
+'*****************************************************************************************************************************
+Call fnCloseAllOpenBrowsers()
+fnUploadReport strProjectResultPath&"\"&Environment("FolderName"), strProjectResultPath&"\"&Environment("FolderName")
+

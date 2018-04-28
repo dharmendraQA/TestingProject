@@ -1,0 +1,108 @@
+'*******************************************************************************************************************************
+'*******************************************************************************************************************************
+'	Script Name							:				FS_6.4.1.2_ReviseBudget 
+'	Objective							:				6.4.1.2 - Revise Budget
+'	Module								:				06. Budgets to Approval
+'	UFT Version							:				12.53
+'	QC Version							:				11.53
+'	Pre-requisites						:				
+'	Created By							:				Gallop 
+'	Date Created						:				04-Oct-2016
+'	Modification Date		       		:		   		NIL	 
+'*******************************************************************************************************************************
+If Environment("ERRORFLAG") = False Then
+	ExitAction()
+End If
+'******************************Imorting ExcelSheet******************************************************************************
+'Get sheet based on region
+If Ucase(Environment("CountryUS")) = "YES" and  Ucase(Environment("CountryCA")) = "NO" Then
+	iCreateorderRowCount = fnGetRowCount("US")
+	Set oCreateorderDataDict = fnGetTestData("US")
+ElseIf Ucase(Environment("CountryUS")) = "NO" and  Ucase(Environment("CountryCA")) = "YES" Then
+	iCreateorderRowCount = fnGetRowCount("CANADA")
+	Set oCreateorderDataDict = fnGetTestData("CANADA")
+End If 
+'******************************Login To OracleEBS*******************************************************************************
+Call fnOracleEBSLogin()
+For iCreateorderRowCountFrom =1 to iCreateorderRowCount
+	rKey = iCreateorderRowCountFrom		
+	Do while Environment("ERRORFLAG")<>False 
+	iTCID =  oCreateorderDataDict.Item("TCID"&iCreateorderRowCountFrom)
+	''*********************************Navigate To Reponsibility*************************************************************
+		If Ucase(Environment("CountryUS")) = "YES" and  Ucase(Environment("CountryCA")) = "NO" Then	
+			fnNavigateToPage("ATDI GL Super User|Amounts")
+		ElseIf Ucase(Environment("CountryUS")) = "NO" and  Ucase(Environment("CountryCA")) = "YES" Then
+			fnNavigateToPage("NTD-CA GL Super User|Amounts")
+		End If 
+		fnSynUntilObjExists "EnterBudgetAmounts", 80
+		If Environment("ERRORFLAG") = False Then
+			Exit Do 
+		End If 
+	'**************************************Fectching data From Excel Sheet*****************************************************
+		sMonthAmount = oCreateorderDataDict.Item("MonthAmount"&iCreateorderRowCountFrom)
+	
+	''***************************************Function flow**********************************************************************
+		iMonthAmount= RandomNumber(1, 20) 
+		'Verify Enter Budget Amounts Form 
+		If OracleFormWindow("EnterBudgetAmounts").Exist(1) Then
+			Call fnReportStepALM("Enter Budget Amounts", "Passed", "Enter Budget Amounts form verification", "Enter Budget Amounts form should be opened","Enter Budget Amounts form is opened")
+			Call rptWriteReport("PASSWITHSCREENSHOT", "Enter Budget Amounts Form" , "Enter Budget Form is opened")
+		Else
+			Call fnReportStepALM("Enter Budget Amounts", "Failed", "Enter Budget Amounts form verification", "Enter Budget Amounts form should be opened","Enter Budget Amounts form is not opened")
+			Call rptWriteReport("Fail", "Enter Budget Amounts Form" , "Enter Budget Form is not opened")
+			fnUploadReport strProjectResultPath&"\"&Environment("FolderName"), strProjectResultPath&"\"&Environment("FolderName")
+			ExitRun
+		End If	
+		fnEnterBudgetAmounts(oCreateorderDataDict)
+		fnSynUntilObjExists "otAccountTable",  40
+		'Check for the Existing values 
+		iAccountNum= fnGetCelldata("otAccountTable", 1, 1)
+		iBudgetAmount= fnGetCelldata("otAccountTable", 1, 2) 
+		If Len(iAccountNum)> 1 AND Len(iBudgetAmount)>1 Then
+			Call fnReportStepALM("Budget Amounts", "Passed", "Revise Budget Amounts verification", "Existing Budget Amount should be displayed", "Revising the Budget for the Account# ->"&iAccountNum&" and value is"&iBudgetAmount)
+			Call rptWriteReport("PASSWITHSCREENSHOT", "Revise Budget Amounts verification" , "Revising the Budget for the Account# ->"&iAccountNum&" and value is"&iBudgetAmount)
+		Else 
+			Call fnReportStepALM("Budget Amounts", "Failed", "Revise Budget Amounts verification", "Existing Budget Amount should be displayed", "Invalid Budget Account# ->"&iAccountNum&" and value is"&iBudgetAmount)
+			Call rptWriteReport("Fail", "Revise Budget Amounts verification" , "Invalid Budget Account# ->"&iAccountNum&" and value is"&iBudgetAmount)
+			fnUploadReport strProjectResultPath&"\"&Environment("FolderName"), strProjectResultPath&"\"&Environment("FolderName")
+			ExitRun
+		End If
+		'Enter the amount on the Month field against Accounts 
+		fnEnterTextInCell "otAccountTable", 1, 2, sMonthAmount
+		fnEnterTextInCell "otAccountTable", 1, 3, sMonthAmount
+		fnEnterTextInCell "otAccountTable", 1, 4, sMonthAmount
+		fnEnterTextInCell "otAccountTable", 1, 5, sMonthAmount
+		'Click on Save
+		fnSelectMenu "EnterBudgetAmounts", "File->Save"
+		strStatusMessage=fnGetProperty("sMsgOracleStatusLine","message")
+		If trim(strStatusMessage)=trim("FRM-40400: Transaction complete: 1 records applied and saved.") Then
+			Call fnReportStepALM("Enter Budget Amounts", "Passed", "Add Budget Amount verification", "Amount should be saved against the Accounts","Amount is saved against the Accounts'"& strStatusMessage)
+			Call rptWriteReport("PASSWITHSCREENSHOT", "Budget Amount Verification" , "Amount is saved against the Accounts "&strStatusMessage)
+		Else
+			Call fnReportStepALM("Enter Budget Amounts", "Failed", "Add Budget Amount verification", "Amount should be saved against the Accounts","Amount is not saved against the Accounts'"& strStatusMessage)
+			Call rptWriteReport("Fail", "Budget Amount Verification" , "Amount is not saved against the Accounts"&strStatusMessage)
+			fnUploadReport strProjectResultPath&"\"&Environment("FolderName"), strProjectResultPath&"\"&Environment("FolderName")
+			ExitRun
+		End If
+		'Click on Post button 
+		fnClick "btnBAPost" 
+		fnSynUntilObjExists "Decisionss", 15
+		fnPopUpHandle "Decisionss", "btnDeleteYes"
+		'Validate Budget Post Verification
+		fnSynUntilObjExists "AccountingNote", 15
+		fnValidateBudgetPostRequestID()		
+		'Close Enter Budgets window 
+		fnSynUntilObjExists "EnterBudgetAmounts", 10
+		OracleFormWindow("EnterBudgetAmounts").CloseWindow 
+	''*********************************************************************************************************************
+   	    If Environment("ERRORFLAG") = False Then
+			Exit Do 
+			ExitAction()
+        End If
+        
+		Exit Do	
+	Loop
+Next
+Call fnCloseAllOpenBrowsers()
+fnUploadReport strProjectResultPath&"\"&Environment("FolderName"), strProjectResultPath&"\"&Environment("FolderName")
+'*****************************************************End of Script*************************************************************

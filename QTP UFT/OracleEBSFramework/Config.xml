@@ -1,0 +1,195 @@
+<Environment>
+		<Variable> 
+				<Name>IEBrowser</Name>
+				<Value>YES</Value>
+		</Variable>
+		<Variable> 
+				<Name>ChromeBrowser</Name>
+				<Value>NO</Value>
+		</Variable>
+		<Variable> 
+				<Name>QAEnv</Name>
+				<Value>NO</Value>
+		</Variable>
+		<Variable> 
+				<Name>UATEnv</Name>
+				<Value>YES</Value>
+		</Variable>
+		<Variable> 
+				<Name>DXEnv</Name>
+				<Value>NO</Value>
+		</Variable>
+		
+		<Variable> 
+				<Name>OracleQAURL</Name>
+				<Value>http://appebsqa.test.icd:8005</Value>
+		</Variable>
+		<Variable> 
+				<Name>OracleUATURL</Name>
+				<Value>http://appebsuat.test.icd:8005</Value>
+		</Variable>
+
+		<Variable> 
+				<Name>ATDOnlineURL</Name>
+				<Value>http://atdonlineqa.atdonline.com/login</Value>
+		</Variable>
+		<Variable> 
+				<Name>ATDOnline_2_URL</Name>
+				<Value>http://atdonlineqa.atdonline.com/content2</Value>
+		</Variable>
+		<Variable> 
+				<Name>LegacyURL</Name>
+				<Value>http://qa.atdonline.com/</Value>
+		</Variable>
+
+		<Variable> 
+				<Name>OracleQAUserID</Name>
+				<Value>nbandi</Value>
+		</Variable>
+		
+			
+		<Variable> 
+				<Name>OracleQAPassword</Name>
+				<Value>Welcome124</Value>
+		</Variable>
+		<Variable>
+
+				<Name>OracleUATUserID</Name>
+				<Value>VCHAURASIA</Value>
+		</Variable>
+		
+			
+		<Variable> 
+				<Name>OracleUATPassword</Name>
+				<Value>oracleuat17</Value>
+		</Variable>
+
+		
+		<Variable> 
+				<Name>OracleDXURL</Name>
+				<Value>http://appebs4dx01.atd-us.icd:8005/</Value>
+		</Variable>
+
+		
+		<Variable> 
+				<Name>OracleDXUserID</Name>
+				<Value>nbandi</Value>
+		</Variable>
+		
+			
+		<Variable> 
+				<Name>OracleDXPassword</Name>
+				<Value>Welcome123</Value>
+		</Variable>
+
+		<Variable> 
+				<Name>ATDOnlineUserID</Name>
+				<Value>northbayatd1</Value>
+		</Variable>
+		<Variable> 
+				<Name>ATDOnlinePassword</Name>
+				<Value>northbayatd1</Value>
+		</Variable>
+
+		<Variable> 
+				<Name>LegacyUserID</Name>
+				<Value>northbaylegacy1</Value>
+		</Variable>
+		<Variable> 
+				<Name>LegacyPassword</Name>
+				<Value>northbaylegacy1</Value>
+		</Variable>
+
+				
+		<Variable> 
+				<Name>QC</Name>
+				<Value>Yes</Value>
+		</Variable>
+		<Variable> 
+				<Name>QCProjectPath</Name>
+				<Value>ENTERPRISE REGRESSION SUITE\Oracle EBS\Automation\Scripts</Value>
+		</Variable>
+		<Variable> 
+				<Name>InfoSemanticsOraclePassword</Name>
+				<Value>0525A</Value>
+		</Variable>
+		
+		
+		<Variable> 
+				<Name>TCID</Name>
+				<Value>1</Value>
+		</Variable>
+		<Variable> 
+				<Name>AUTOSUMMARYDISPLAY</Name>
+				<Value>YES</Value>
+		</Variable>
+		<Variable> 
+				<Name>ORACLEVERSION</Name>
+				<Value>Oracle 12.1.3</Value>
+		</Variable>
+		
+		<Variable> 
+				<Name>SystemZServer</Name>
+				<Value>ZQA.Test.ICD</Value>
+		</Variable>
+		<Variable> 
+				<Name>SystemZUserID</Name>
+				<Value>eiv</Value>
+		</Variable>
+
+		<Variable> 
+				<Name>SystemZPassword</Name>
+				<Value>eivtest</Value>
+		</Variable>
+		<Variable> 
+				<Name>TelnetUserID</Name>
+				<Value>nbandi</Value>
+		</Variable>
+		<Variable> 
+				<Name>TelnetPassword</Name>
+				<Value>Welcome123</Value>
+		</Variable>
+		<Variable> 
+				<Name>TelnetServer</Name>
+				<Value>WMSQA.test.icd</Value>
+		</Variable>
+
+		<Variable> 
+				<Name>COUSystemZUserID</Name>
+				<Value>nb2</Value>
+		</Variable>
+
+		<Variable> 
+				<Name>COUSystemZPassword</Name>
+				<Value>welcome13</Value>
+		</Variable>
+
+		<Variable> 
+				<Name>EBSQA_DBUserID</Name>
+				<Value>apps_readonly</Value>
+		</Variable>
+		<Variable> 
+				<Name>EBSQA_DBPwd</Name>
+				<Value>atd12345</Value>
+		</Variable>
+		<Variable> 
+				<Name>EBSQA_CacheDBUserID</Name>
+				<Value>soauser</Value>
+		</Variable>
+		<Variable> 
+				<Name>EBSQA_CacheDBPwd</Name>
+				<Value>soauser_123</Value>
+		</Variable>
+		<Variable> 
+				<Name>EBSQA_DBServiceName</Name>
+				<Value>EBSQA</Value>
+		</Variable>
+		<Variable> 
+				<Name>EBSQACache_DBServiceName</Name>
+				<Value>TBSOAQ</Value>
+		</Variable>
+		<Variable> 
+				<Name>DBCache_HOSTNAME</Name>
+				<Value>exscanb.test.icd</Value>
+		</Variable>
+</Environment>
